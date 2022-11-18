@@ -1,13 +1,42 @@
-if (document.readyState == 'loading') {
-    document.addEventListener('DOMContentLoaded', run)
-} else {
-    run();
-}
+// if (document.readyState == 'loading') {
+//     document.addEventListener('DOMContentLoaded', run)
+// } else {
+//     run();
+// }
 
 function run() {
     addtoCartBtn();
     removeCartItemBtn();
 }
+
+window.addEventListener('DOMContentLoaded', async function getProducts() {
+    try {
+        const res = await axios.get('http://localhost:3000/products');
+        const products = res.data.products;
+    if(products){
+        for(let i=0;i<products.length;i++){
+            showproductsonScreen(products[i]);
+        }
+    }
+    
+    } catch (error) {
+        console.log(error);
+    }
+    
+})
+
+function showproductsonScreen(product){
+    const parentDiv = document.getElementsByClassName('cards')[0];
+            const childHTML = `<div class="card">
+            <h2 class="prod_name">${product.title}</h2>
+            <img class="prod_img" src="${product.imageUrl}" alt="">
+            <h3 class="prod_price" class="price">$${product.price}</h3>
+            <button class="addtoCart">Add to Cart</button>
+        </div>`
+        parentDiv.innerHTML = parentDiv.innerHTML + childHTML;
+}
+
+
 
 const opneCart = document.getElementById('openCart');
 const closeCart = document.getElementById('closeCart');

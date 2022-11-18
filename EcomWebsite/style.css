@@ -359,6 +359,10 @@ ul.nav-item-list {
   font-family: arial;
 }
 
+.card img {
+    max-width: 200px;
+}
+
 .card img:hover {
     transform: scale(1.3);
     transition: transform 0.3s ease-in-out;
