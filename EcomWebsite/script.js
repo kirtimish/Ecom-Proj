@@ -11,20 +11,20 @@ function run() {
 
 const opneCart = document.getElementById('openCart');
 const closeCart = document.getElementById('closeCart');
-var removeFromcartBtn = document.getElementsByClassName('removefromCart');
-var addtocartBtn = document.getElementsByClassName('addtoCart');
-
 const cartContainer = document.getElementById('cartContainer');
 
 opneCart.addEventListener('click', () => {
     cartContainer.classList.add("active");
+    document.body.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
 });
 
 closeCart.addEventListener('click', () => {
     cartContainer.classList.remove("active");
+    document.body.style.backgroundColor = 'aliceblue';
 });
 
 function removeCartItemBtn() {
+    var removeFromcartBtn = document.getElementsByClassName('removefromCart');
     for(var i=0;i<removeFromcartBtn.length;i++){
         var button = removeFromcartBtn[i];
         button.addEventListener('click',(e) => {

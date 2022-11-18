@@ -6,7 +6,6 @@
 
 body {
     background-color: aliceblue;
-    color: black;
     font-family: sans-serif;
 }
 
@@ -201,18 +200,18 @@ ul.nav-item-list {
 
 .cart-popup-container {
     background-color: #fff;
-    min-height: 450px;
-    min-width: 400px;
+    height: 100vh;
     padding: 20px;
     border-radius: 5px;
-    display: none;
     position: fixed;
-    top: 60px;
+    top: 0;
     right: 0;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
 }
 
 .cart-popup-container.active {
-    display: block;
+    transform: translateX(0);
 }
 
 #closeCart {
