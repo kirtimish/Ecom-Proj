@@ -56,8 +56,8 @@ async function addtoCartBtn(productId) {
 
     try {
         const res = await axios.post('http://localhost:3000/cart',{productId: productId});
-        if(res){
-           console.log("Product added to cart succesfully");
+        if(res.status == 200){
+        //    console.log("Product added to cart succesfully");
            cartToastNotification();
         }
     } catch (error) {
@@ -65,7 +65,31 @@ async function addtoCartBtn(productId) {
     }
 }
 
+async function getCart() {
+    try {
+        const res = await axios.get('http://localhost:3000/cart')
+        if(res.status == 200){
+            const product = res.data.products;
+            for(let i=0;i<product.length;i++){
+                getCartItems(product[i]);
+            }
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
 
+function getCartItems(product) {
+    const parentDiv = document.getElementsByClassName('cart-items')[0];
+    const childHTML = `<div class="cart-item">
+    <img id="prod_img" src="${product.imageUrl}" alt="">
+    <h2 id="prod_name">${product.title}</h2>
+    <h3 class="cart-price" class="price">$${product.price}</h3>
+    <input type="text" class="cart-quantity-input" name="quantity" id="quantity" value=${product.cartItem.quantity}>
+    <button class="removefromCart">Remove</button>
+</div> `
+parentDiv.innerHTML = parentDiv.innerHTML + childHTML;
+}
 
 function updateCartTotal(){
     var cartItemsContainer = document.getElementsByClassName('cart-items');

@@ -200,7 +200,7 @@ ul.nav-item-list {
 
 .cart-popup-container {
     background-color: #fff;
-    height: 100vh;
+    min-height: 150vh;
     padding: 20px;
     border-radius: 5px;
     position: fixed;
@@ -255,7 +255,7 @@ ul.nav-item-list {
 }
 
 .cart-item img {
-    width: 80px;
+    width: 60px;
 }
 
 .cart-item h3 {
