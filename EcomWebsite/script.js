@@ -1,13 +1,16 @@
-// if (document.readyState == 'loading') {
-//     document.addEventListener('DOMContentLoaded', run)
-// } else {
-//     run();
-// }
+const opneCart = document.getElementById('openCart');
+const closeCart = document.getElementById('closeCart');
+const cartContainer = document.getElementById('cartContainer');
 
-function run() {
-    addtoCartBtn();
-    removeCartItemBtn();
-}
+opneCart.addEventListener('click', () => {
+    cartContainer.classList.add("active");
+    document.body.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+});
+
+closeCart.addEventListener('click', () => {
+    cartContainer.classList.remove("active");
+    document.body.style.backgroundColor = 'aliceblue';
+});
 
 window.addEventListener('DOMContentLoaded', async function getProducts() {
     try {
@@ -31,26 +34,11 @@ function showproductsonScreen(product){
             <h2 class="prod_name">${product.title}</h2>
             <img class="prod_img" src="${product.imageUrl}" alt="">
             <h3 class="prod_price" class="price">$${product.price}</h3>
-            <button class="addtoCart">Add to Cart</button>
+            <button onClick=addtoCartBtn("${product.id}") class="addtoCart">Add to Cart</button>
         </div>`
         parentDiv.innerHTML = parentDiv.innerHTML + childHTML;
 }
 
-
-
-const opneCart = document.getElementById('openCart');
-const closeCart = document.getElementById('closeCart');
-const cartContainer = document.getElementById('cartContainer');
-
-opneCart.addEventListener('click', () => {
-    cartContainer.classList.add("active");
-    document.body.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
-});
-
-closeCart.addEventListener('click', () => {
-    cartContainer.classList.remove("active");
-    document.body.style.backgroundColor = 'aliceblue';
-});
 
 function removeCartItemBtn() {
     var removeFromcartBtn = document.getElementsByClassName('removefromCart');
@@ -64,37 +52,20 @@ function removeCartItemBtn() {
     }
 }
 
-function addtoCartBtn() {
-    var addtocartbtn = document.getElementsByClassName('addtoCart');
-    for(var i=0;i<addtocartbtn.length;i++){
-        var btn = addtocartbtn[i];
-        btn.addEventListener('click',(event) => {
-            var button = event.target;
-            var prodItem = button.parentElement;
-            var title = prodItem.getElementsByClassName('prod_name')[0].innerText;
-            var imgSrc = prodItem.getElementsByClassName('prod_img')[0].src;
-            var price = prodItem.getElementsByClassName('prod_price')[0].innerText;
-            addtoCart(title,price,imgSrc);
-        })
+async function addtoCartBtn(productId) {
+
+    try {
+        const res = await axios.post('http://localhost:3000/cart',{productId: productId});
+        if(res){
+           console.log("Product added to cart succesfully");
+           cartToastNotification();
+        }
+    } catch (error) {
+        console.log(error);
     }
 }
 
-function addtoCart(title,price,imgSrc){
-    var cartItem = document.createElement('div');
-    cartItem.classList.add('cart-item');
-    var cartItems = document.getElementsByClassName('cart-items')[0];
-    console.log(cartItems)
-    var cartItemcontents = `
-    <img id="prod_img" src="${imgSrc}" alt="">
-    <h2 id="prod_name">${title}</h2>
-    <h3 class="cart-price" class="price">${price}</h3>
-    <input type="text" class="cart-quantity-input" name="quantity" id="quantity" value="1">
-    <button class="removefromCart">Remove</button> `
-cartItem.innerHTML = cartItemcontents;
-cartItems.append(cartItem);
-cartItem.getElementsByClassName('removefromCart')[0].addEventListener('click', removeCartItemBtn);
-cartToastNotification();
-}
+
 
 function updateCartTotal(){
     var cartItemsContainer = document.getElementsByClassName('cart-items');
