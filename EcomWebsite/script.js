@@ -14,6 +14,19 @@ document.addEventListener('click', (e) => {
         getCart();
         document.querySelector('.cart-number').innerText = parseInt(document.querySelector('.cart-number').innerText) + 1
     }
+    if(e.target.className == 'purchase-btn'){
+        const purchaseBtn = document.getElementsByClassName('purchase-btn')[0];
+        purchaseBtn.addEventListener('click', (productId) => {
+            axios.post('http://localhost:3000/createOrder', { productId: productId})
+            .then(res => {
+                const parentDiv = document.getElementsByClassName('cart-items')[0];
+                console.log(res.data);
+                parentDiv.innerHTML = `<h2>Order with order id has been successfully placed.</h2>`;
+            })
+            .catch(err => { console.log(err) })
+        })
+        
+    }
 })
 
 window.addEventListener('DOMContentLoaded', () => {
