@@ -1,44 +1,124 @@
-const opneCart = document.getElementById('openCart');
-const closeCart = document.getElementById('closeCart');
-const cartContainer = document.getElementById('cartContainer');
 
-opneCart.addEventListener('click', () => {
-    cartContainer.classList.add("active");
-    document.body.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
-});
+const cartContainer = document.getElementById('cartContainer');
+const pagination = document.getElementById('pagination');
 
 closeCart.addEventListener('click', () => {
     cartContainer.classList.remove("active");
     document.body.style.backgroundColor = 'aliceblue';
 });
 
-window.addEventListener('DOMContentLoaded', async function getProducts() {
-    try {
-        const res = await axios.get('http://localhost:3000/products');
-        const products = res.data.products;
-    if(products){
-        for(let i=0;i<products.length;i++){
-            showproductsonScreen(products[i]);
-        }
+document.addEventListener('click', (e) => {
+    if(e.target.className == 'cartBtn'){
+        cartContainer.classList.add("active");
+        document.body.style.backgroundColor = 'aliceblue';
+        getCart();
+        document.querySelector('.cart-number').innerText = parseInt(document.querySelector('.cart-number').innerText) + 1
     }
-    
-    } catch (error) {
-        console.log(error);
-    }
-    
 })
 
-function showproductsonScreen(product){
+window.addEventListener('DOMContentLoaded', () => {
+    const page = 1;
+    axios.get(`http://localhost:3000/products?page=${page}`)
+    .then((res) => {
+        console.log(res);
+        showproductsonScreen(res.data.products);
+        addPagination(res.data);
+    }).catch(err => console.log(err));
+
+    function addPagination({ currentPage, hasNextPage,hasPrevPage,lastPage,nextPage,prevPage,products}) {
+        pagination.innerHTML = '';
+        if(hasPrevPage){
+            const btn2 = document.createElement('button');
+            btn2.innerHTML = prevPage;
+            pagination.appendChild(btn2);
+            btn2.addEventListener('click', () => { getProducts(prevPage) });
+        }
+        const btn1 = document.createElement('button');
+        btn1.innerHTML = `<h4>${currentPage}</h4>`;
+        pagination.appendChild(btn1);
+        btn1.addEventListener('click', () => { getProducts(currentPage)});
+    
+        if(hasNextPage){
+            const btn3 = document.createElement('button');
+            btn3.innerHTML = nextPage;
+            pagination.appendChild(btn3);
+            btn3.addEventListener('click', () => { getProducts(nextPage) });
+        }
+    }
+
+    function getProducts(page) {
+
+        axios.get(`http://localhost:3000/products?page=${page}`)
+        .then((res) => {
+            console.log(res);
+            showproductsonScreen(res.data.products);
+            addPagination(res.data);
+        }).catch(err => console.log(err));
+    
+        }
+})
+
+function showproductsonScreen(Products){
     const parentDiv = document.getElementsByClassName('cards')[0];
-            const childHTML = `<div class="card">
-            <h2 class="prod_name">${product.title}</h2>
+    parentDiv.innerHTML='';
+    Products.forEach(product => {
+        const productDiv = document.createElement('div'); 
+        productDiv.classList.add("card");
+        productDiv.innerHTML = `<h2 class="prod_name">${product.title}</h2>
             <img class="prod_img" src="${product.imageUrl}" alt="">
             <h3 class="prod_price" class="price">$${product.price}</h3>
-            <button onClick=addtoCartBtn("${product.id}") class="addtoCart">Add to Cart</button>
-        </div>`
-        parentDiv.innerHTML = parentDiv.innerHTML + childHTML;
+            <button onClick=addtoCartBtn("${product.id}") class="addtoCart">Add to Cart</button>`
+        parentDiv.appendChild(productDiv);
+    });
 }
 
+
+function addtoCartBtn(productId) {
+ axios.post('http://localhost:3000/cart',{productId: productId})
+ .then((res) => {
+    cartToastNotification();
+ })
+ .catch(err => {
+    console.log(err);
+ })
+}
+
+function getCart() {
+    axios.get('http://localhost:3000/cart')
+    .then(res => {
+        if (res.status === 200) {
+            getCartItems(res.data.products);
+        } 
+
+    }).catch(err => { console.log(err) });
+}
+
+function getCartItems(product) {
+    const parentDiv = document.getElementsByClassName('cart-items')[0];
+    parentDiv.innerHTML='';
+    product.forEach(product => {
+        const cartItemDiv = document.createElement('div');
+        cartItemDiv.classList.add("cart-item"); 
+        cartItemDiv.innerHTML = `<img id="prod_img" src="${product.imageUrl}" alt="">
+    <h2 id="prod_name">${product.title}</h2>
+    <h3 class="cart-price" class="price">$${product.price}</h3>
+    <input type="text" class="cart-quantity-input" name="quantity" id="quantity" value=${product.cartItem.quantity}>
+    <button onclick=deleteCartItem("${product.id}") class="removefromCart">Remove</button>`
+        parentDiv.appendChild(cartItemDiv);
+    })
+}
+
+async function deleteCartItem(e, productId) {
+    try {
+        e.preventDefault();
+        const res = await axios.post('http://localhost:3000/cart-delete-item', {productId: productId})
+        if(res){
+           removeCartItemBtn();
+        }
+    } catch (error) {
+        
+    }
+}
 
 function removeCartItemBtn() {
     var removeFromcartBtn = document.getElementsByClassName('removefromCart');
@@ -47,48 +127,9 @@ function removeCartItemBtn() {
         button.addEventListener('click',(e) => {
             const removingitemTarget = e.target;
             removingitemTarget.parentElement.remove();
-            updateCartTotal();
+            // updateCartTotal();
         })
     }
-}
-
-async function addtoCartBtn(productId) {
-
-    try {
-        const res = await axios.post('http://localhost:3000/cart',{productId: productId});
-        if(res.status == 200){
-        //    console.log("Product added to cart succesfully");
-           cartToastNotification();
-        }
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-async function getCart() {
-    try {
-        const res = await axios.get('http://localhost:3000/cart')
-        if(res.status == 200){
-            const product = res.data.products;
-            for(let i=0;i<product.length;i++){
-                getCartItems(product[i]);
-            }
-        }
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-function getCartItems(product) {
-    const parentDiv = document.getElementsByClassName('cart-items')[0];
-    const childHTML = `<div class="cart-item">
-    <img id="prod_img" src="${product.imageUrl}" alt="">
-    <h2 id="prod_name">${product.title}</h2>
-    <h3 class="cart-price" class="price">$${product.price}</h3>
-    <input type="text" class="cart-quantity-input" name="quantity" id="quantity" value=${product.cartItem.quantity}>
-    <button class="removefromCart">Remove</button>
-</div> `
-parentDiv.innerHTML = parentDiv.innerHTML + childHTML;
 }
 
 function updateCartTotal(){
